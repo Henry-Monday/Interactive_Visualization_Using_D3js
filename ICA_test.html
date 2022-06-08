@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://unpkg.com/d3-v6-tip@1.0.9/build/d3-v6-tip.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bumbeishvili/d3-tip-for-v6@4/d3-tip.min.css">
+<div><style>
+  #home{
+      background-color: orangered;
+      color: white;
+      padding: 5px 15px;
+  
+  }
+  #home:hover{
+      background-color: rgb(231, 130, 93);
+  }
+</style>
+<a href="../main.html"><button id="home">Home</button></a>
+</div>
+
+
+<!-- Add 8 buttons -->
+<button onclick="update('Total_Quantity')"  class="button button1">Total Quantity</button>
+<button onclick="update('Furniture_Quantity')"  class="button button2">Furniture Quantity</button>
+<button onclick="update('Office_Supplies_Quantity')"  class="button button3">Office Supplies Quantity</button>
+<button onclick="update('Technology_Quantity')"  class="button button4">Technology Quantity</button>
+<button onclick="update('Total_Profit')"  class="button button5">Total Profit</button>
+<button onclick="update('Furniture_Profit')"  class="button button6">Furniture Profit</button>
+<button onclick="update('Office_Supplies_Profit')"  class="button button7">Office Supplies Profit</button>
+<button onclick="update('Technology_Profit')"  class="button button8">Technology Profit</button>
+
+
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz">
+    <style>
+        .d3-tip {
+               line-height: 1;
+               font-weight: lighter;
+               padding: 12px;
+               background: rgba(0, 0, 0, 0.8);
+               color: #fff;
+               border-radius: 2px;
+           }
+   
+           /* Creates a small triangle extender for the tooltip */
+           .d3-tip:after {
+               box-sizing: border-box;
+               display: inline;
+               font-size: 10px;
+               width: 100%;
+               line-height: 1;
+               color: rgba(0, 0, 0, 0.8);
+               content: "\25BC";
+               position: absolute;
+               text-align: center;
+           }
+   
+           /* Style northward tooltips differently */
+           .d3-tip.n:after {
+               margin: -1px 0 0 0;
+               top: 100%;
+               left: 0;
+           }
+
+           .grid line {
+              stroke: lightgrey;
+              stroke-opacity: 0.5;
+              shape-rendering: crispEdges;
+          }
+
+          .grid path {
+              stroke-width: 0;
+          }
+
+          /* Style the buttons with different background colors */
+
+          .button {
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 10px;
+            margin: 4px 2px;
+            cursor: pointer;
+
+          }
+          .button1 {background-color: rgb(0, 104, 130);
+            border-color: red;
+            color: white;}
+          .button2 {background-color: rgb(146, 160, 159);
+            border-color: red;
+            color: white;}
+          .button3 {background-color: rgb(71, 55, 3);
+            border-color: red;
+            color: white;}
+          .button4 {background-color: rgb(163, 114, 209);
+            border-color: red;
+            color: white;}
+          .button5 {background-color: rgb(116, 62, 95);
+            border-color: red;
+            color: white;}
+          .button6 {background-color: rgb(110, 8, 105);
+            border-color: red;
+            color: white;}
+          .button7 {background-color: rgb(27, 17, 36);
+            border-color: red;
+            color: white;}
+          .button8 {background-color: rgb(43, 214, 226);
+            border-color: red;
+            color: white;}
+   
+     </style>
+</div>
+
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 50, right: 30, bottom: 100, left: 80},
+        width = 1000 - margin.left - margin.right,
+        height = 700 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+    
+    // Initialize the X axis
+    var x = d3.scaleBand()
+      .range([ 0, width ])
+      .padding(1);
+    var xAxis = svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      
+    
+    // Initialize the Y axis
+    var y = d3.scaleLinear()
+      .range([ height, 0]);
+    var yAxis = svg.append("g")
+      .attr("class", "myYaxis")
+
+    
+    // Insert the chart header
+
+    svg
+      .append('text')
+      .attr('class', 'label')
+      .attr('x', width / 1.8)
+      .attr('y', -10)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '30px')
+      .text('Quantites | Profits Per Region');
+
+    // Insert the Y axis label
+
+    svg
+      .append('text')
+      .attr('class', 'label')
+      .attr('x', -200)
+      .attr('y', -60)
+      .attr('transform', 'rotate(-90)')  
+      .attr('text-anchor', 'middle')
+      .text('Quantities | Profits')
+
+    // Insert the X axis label
+
+    svg
+      .append('text')
+      .attr('class', 'label')
+      .attr('x', 500)
+      .attr('y', 640)
+      .attr('text-anchor', 'middle')
+      .text('Regions')
+
+
+    // add the Y axis gridlines
+    svg
+      .append('g')
+      .classed('grid', true)
+      .call(
+          d3.axisLeft(y)
+            .tickSize(-width) //make the ticks really long so they act like gridlines
+            .tickFormat('') //prevent a second set of labels being added. The y axis already has these labels
+      );
+
+    
+    
+    // A function that create / update the plot for a given variable:
+    function update(selectedVar) {
+        
+        let tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-17, -8])
+        .html(function (d) {
+            
+            return `<strong>${d.Region} </strong><span style='color:orangered'> ${d[selectedVar]}</span>`;
+        });
+
+      svg.call(tip);        
+
+      // Parse the Data
+      d3.csv("Quantity_Exp.csv", function(data) {
+    
+        // X axis
+        x.domain(data.map(function(d) { return d.Region; }))
+        xAxis.transition().duration(1000).call(d3.axisBottom(x)).selectAll("text").attr("transform", "translate(-10,0)rotate(-45)").style("text-anchor", "end")
+    
+        // Add Y axis
+        y.domain([0, d3.max(data, function(d) { return +d[selectedVar] }) ]);
+        yAxis.transition().duration(1000).call(d3.axisLeft(y));
+    
+        // variable my_line : map data to existing circle
+
+        var my_line = svg.selectAll(".myLine")
+          .data(data)
+
+        // update lines and make the line thick
+        my_line
+          .enter()
+          .append("line")
+          .attr("class", "myLine")
+          .merge(my_line)
+          .transition()
+          .duration(1000)
+            .attr("x1", function(d) { console.log(x(d.Region)) ; return x(d.Region); })
+            .attr("x2", function(d) { return x(d.Region); })
+            .attr("y1", y(0))
+            .attr("y2", function(d) { return y(d[selectedVar]); })
+            .attr("stroke", "grey")
+            .attr("stroke-width", "6px")
+    
+    
+        // variable my_circle : map data to existing circle
+        var my_circle = svg.selectAll("circle")
+          .data(data)
+        // update bars
+        my_circle
+          .enter()
+          .append("circle")
+                   
+          .merge(my_circle)
+          .on('mouseover', function(d) {
+            tip.show(d, this),
+            d3.select(this).attr('fill', 'red')})
+          .on('mouseout', function(d) {
+            tip.hide(d, this),
+            d3.select(this).attr('fill', 'black')}) 
+          .transition()
+          .duration(1000)
+            .attr("cx", function(d) { return x(d.Region); })
+            .attr("cy", function(d) { return y(d[selectedVar]); })
+            .attr("r", 8)
+            .attr("fill", "Indigo");
+    
+    
+      })
+    
+    }
+    
+    // Initialize plot
+    update('Total_Quantity')
+    
+    </script>
